@@ -1,0 +1,44 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.13.35919.96
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Services", "Services", "{02EA681E-C7D8-13C7-8484-4AC65E1B71E8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AuthService", "AuthService\AuthService.csproj", "{60951AF7-6E54-4ACB-B739-0FD5496A2A47}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HotelAdminService", "HotelAdminService\HotelAdminService.csproj", "{65C56764-6FEE-4652-BEC6-A7FD24B9225B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gateway", "Gateway\Gateway.csproj", "{D42C2EAE-82F3-4FEB-9670-D8BFE6A62AA9}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{60951AF7-6E54-4ACB-B739-0FD5496A2A47}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{60951AF7-6E54-4ACB-B739-0FD5496A2A47}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{60951AF7-6E54-4ACB-B739-0FD5496A2A47}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{60951AF7-6E54-4ACB-B739-0FD5496A2A47}.Release|Any CPU.Build.0 = Release|Any CPU
+		{65C56764-6FEE-4652-BEC6-A7FD24B9225B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{65C56764-6FEE-4652-BEC6-A7FD24B9225B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{65C56764-6FEE-4652-BEC6-A7FD24B9225B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{65C56764-6FEE-4652-BEC6-A7FD24B9225B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D42C2EAE-82F3-4FEB-9670-D8BFE6A62AA9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D42C2EAE-82F3-4FEB-9670-D8BFE6A62AA9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D42C2EAE-82F3-4FEB-9670-D8BFE6A62AA9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D42C2EAE-82F3-4FEB-9670-D8BFE6A62AA9}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{60951AF7-6E54-4ACB-B739-0FD5496A2A47} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
+		{65C56764-6FEE-4652-BEC6-A7FD24B9225B} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
+		{D42C2EAE-82F3-4FEB-9670-D8BFE6A62AA9} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {768C89C0-B9CE-4825-86BE-33D17FA41C0F}
+	EndGlobalSection
+EndGlobal
