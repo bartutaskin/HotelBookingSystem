@@ -24,12 +24,34 @@ namespace HotelAdminService.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAllHotels()
+        public async Task<IActionResult> GetAllHotels([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
         {
-            var hotels = await _context.Hotels.Include(h => h.Rooms).ToListAsync();
+            if (pageNumber <= 0) pageNumber = 1;
+            if (pageSize <= 0) pageSize = 10;
+
+            var totalHotels = await _context.Hotels.CountAsync();
+
+            var hotels = await _context.Hotels
+                .Include(h => h.Rooms)
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
             var hotelDtos = _mapper.Map<List<HotelWithRoomsDto>>(hotels);
-            return Ok(hotelDtos);
+
+            var pagedResult = new PagedResult<HotelWithRoomsDto>
+            {
+                PageNumber = pageNumber,
+                PageSize = pageSize,
+                TotalCount = totalHotels,
+                TotalPages = (int)Math.Ceiling(totalHotels / (double)pageSize),
+                Items = hotelDtos
+            };
+
+            return Ok(pagedResult);
         }
+
+
 
         [HttpGet("{hotelId}")]
         public async Task<IActionResult> GetHotelById(int hotelId)
