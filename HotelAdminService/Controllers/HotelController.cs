@@ -81,7 +81,6 @@ namespace HotelAdminService.Controllers
             _context.Hotels.Add(hotel);
             await _context.SaveChangesAsync();
 
-            // Re-fetch hotel with rooms
             var savedHotel = await _context.Hotels
                 .Include(h => h.Rooms)
                 .FirstOrDefaultAsync(h => h.Id == hotel.Id);
@@ -102,10 +101,11 @@ namespace HotelAdminService.Controllers
             hotel.Name = updatedHotelDto.Name;
             hotel.City = updatedHotelDto.City;
             hotel.Address = updatedHotelDto.Address;
+            hotel.Latitude = updatedHotelDto.Latitude;      
+            hotel.Longitude = updatedHotelDto.Longitude;    
 
             await _context.SaveChangesAsync();
 
-            // Re-fetch hotel with rooms
             var updatedHotel = await _context.Hotels
                 .Include(h => h.Rooms)
                 .FirstOrDefaultAsync(h => h.Id == hotelId);
