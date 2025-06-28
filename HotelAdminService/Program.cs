@@ -86,6 +86,8 @@ namespace HotelAdminService
             builder.Services.AddSingleton<IConnectionMultiplexer>(
                 ConnectionMultiplexer.Connect("localhost:6379"));
 
+            builder.Services.AddScoped<HotelAdminService.Services.HotelCacheService>();
+
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.

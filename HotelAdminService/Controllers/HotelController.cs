@@ -2,6 +2,7 @@
 using HotelAdminService.Data;
 using HotelAdminService.Models;
 using HotelAdminService.Models.DTOs;
+using HotelAdminService.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -16,11 +17,13 @@ namespace HotelAdminService.Controllers
     {
         private readonly HotelDbContext _context;
         private readonly IMapper _mapper;
+        private readonly HotelCacheService _hotelCacheService;
 
-        public HotelController(HotelDbContext context, IMapper mapper)
+        public HotelController(HotelDbContext context, IMapper mapper, HotelCacheService hotelCacheService)
         {
             _context = context;
             _mapper = mapper;
+            _hotelCacheService = hotelCacheService;
         }
 
         [HttpGet]
@@ -51,17 +54,66 @@ namespace HotelAdminService.Controllers
             return Ok(pagedResult);
         }
 
-
-
         [HttpGet("{hotelId}")]
         public async Task<IActionResult> GetHotelById(int hotelId)
         {
-            var hotel = await _context.Hotels.Include(h => h.Rooms).FirstOrDefaultAsync(h => h.Id == hotelId);
+            var cachedHotel = await _hotelCacheService.GetHotelAsync(hotelId.ToString());
+            if (cachedHotel != null)
+                return Ok(cachedHotel);
+
+            var hotel = await _context.Hotels
+                .Include(h => h.Rooms)
+                .FirstOrDefaultAsync(h => h.Id == hotelId);
+
             if (hotel == null)
                 return NotFound("Hotel not found");
 
-            var hotelDto = _mapper.Map<HotelWithRoomsDto>(hotel);
-            return Ok(hotelDto);
+            var hotelWithRoomsDto = _mapper.Map<HotelWithRoomsDto>(hotel);
+            await _hotelCacheService.CacheHotelAsync(hotelId.ToString(), hotelWithRoomsDto);
+
+            return Ok(hotelWithRoomsDto);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> CreateHotel(HotelCreateDto dto)
+        {
+            var hotel = _mapper.Map<Hotel>(dto);
+            _context.Hotels.Add(hotel);
+            await _context.SaveChangesAsync();
+
+            // Re-fetch hotel with rooms
+            var savedHotel = await _context.Hotels
+                .Include(h => h.Rooms)
+                .FirstOrDefaultAsync(h => h.Id == hotel.Id);
+
+            var hotelWithRoomsDto = _mapper.Map<HotelWithRoomsDto>(savedHotel);
+            await _hotelCacheService.CacheHotelAsync(hotel.Id.ToString(), hotelWithRoomsDto);
+
+            return Ok(hotelWithRoomsDto);
+        }
+
+        [HttpPut("{hotelId}")]
+        public async Task<IActionResult> UpdateHotel(int hotelId, HotelCreateDto updatedHotelDto)
+        {
+            var hotel = await _context.Hotels.FindAsync(hotelId);
+            if (hotel == null)
+                return NotFound("Hotel not found");
+
+            hotel.Name = updatedHotelDto.Name;
+            hotel.City = updatedHotelDto.City;
+            hotel.Address = updatedHotelDto.Address;
+
+            await _context.SaveChangesAsync();
+
+            // Re-fetch hotel with rooms
+            var updatedHotel = await _context.Hotels
+                .Include(h => h.Rooms)
+                .FirstOrDefaultAsync(h => h.Id == hotelId);
+
+            var hotelWithRoomsDto = _mapper.Map<HotelWithRoomsDto>(updatedHotel);
+            await _hotelCacheService.CacheHotelAsync(hotelId.ToString(), hotelWithRoomsDto);
+
+            return Ok(hotelWithRoomsDto);
         }
 
         [HttpGet("room/{roomId}")]
@@ -73,17 +125,6 @@ namespace HotelAdminService.Controllers
 
             var roomDto = _mapper.Map<RoomDto>(room);
             return Ok(roomDto);
-        }
-
-        [HttpPost]
-        public async Task<IActionResult> CreateHotel(HotelCreateDto dto)
-        {
-            var hotel = _mapper.Map<Hotel>(dto);
-            _context.Hotels.Add(hotel);
-            await _context.SaveChangesAsync();
-
-            var hotelDto = _mapper.Map<HotelDto>(hotel);
-            return Ok(hotelDto);
         }
 
         [HttpPost("{hotelId}/room")]
@@ -99,6 +140,14 @@ namespace HotelAdminService.Controllers
             _context.Rooms.Add(room);
             await _context.SaveChangesAsync();
 
+            // Re-fetch hotel with rooms
+            var updatedHotel = await _context.Hotels
+                .Include(h => h.Rooms)
+                .FirstOrDefaultAsync(h => h.Id == hotelId);
+
+            var hotelWithRoomsDto = _mapper.Map<HotelWithRoomsDto>(updatedHotel);
+            await _hotelCacheService.CacheHotelAsync(hotelId.ToString(), hotelWithRoomsDto);
+
             var roomDto = _mapper.Map<RoomDto>(room);
             return Ok(roomDto);
         }
@@ -110,10 +159,17 @@ namespace HotelAdminService.Controllers
             if (room == null)
                 return NotFound("Room not found");
 
-            // Map updated DTO to existing room entity
             _mapper.Map(updatedRoomDto, room);
-
             await _context.SaveChangesAsync();
+
+            // Re-fetch hotel with rooms
+            var hotelId = room.HotelId;
+            var updatedHotel = await _context.Hotels
+                .Include(h => h.Rooms)
+                .FirstOrDefaultAsync(h => h.Id == hotelId);
+
+            var hotelWithRoomsDto = _mapper.Map<HotelWithRoomsDto>(updatedHotel);
+            await _hotelCacheService.CacheHotelAsync(hotelId.ToString(), hotelWithRoomsDto);
 
             var roomDto = _mapper.Map<RoomDto>(room);
             return Ok(roomDto);
