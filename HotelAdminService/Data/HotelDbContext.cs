@@ -1,4 +1,5 @@
 ﻿using HotelAdminService.Models;
+using HotelContracts.DTOs;
 using Microsoft.EntityFrameworkCore;
 
 namespace HotelAdminService.Data
@@ -9,6 +10,7 @@ namespace HotelAdminService.Data
 
         public DbSet<Hotel> Hotels => Set<Hotel>();
         public DbSet<Room> Rooms => Set<Room>();
+        public DbSet<Booking> Bookings { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

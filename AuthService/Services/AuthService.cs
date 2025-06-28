@@ -1,11 +1,11 @@
-﻿using AuthService.Models.Entities;
-using Microsoft.IdentityModel.Tokens;
+﻿using AuthService.Data;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using AuthService.Models.Entities;
 using Microsoft.AspNetCore.Identity;
-using AuthService.Data;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 
 namespace AuthService.Services
 {
@@ -76,6 +76,10 @@ namespace AuthService.Services
             );
 
             return new JwtSecurityTokenHandler().WriteToken(token);
+        }
+        public async Task<User?> GetUserByIdAsync(int userId)
+        {
+            return await _db.Users.FirstOrDefaultAsync(u => u.Id == userId);
         }
     }
 }
