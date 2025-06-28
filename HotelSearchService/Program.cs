@@ -1,5 +1,9 @@
 
+using System.Text;
 using HotelSearchService.Services;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
 using StackExchange.Redis;
 
 namespace HotelSearchService
@@ -22,6 +26,12 @@ namespace HotelSearchService
             builder.Services.AddScoped<IHotelSearchService, HotelSearchService.Services.HotelSearchService>();
 
 
+
+            builder.Services.AddSwaggerGen(c =>
+            {
+                c.SwaggerDoc("v1", new OpenApiInfo { Title = "HotelSearchService", Version = "v1" });
+            });
+
             builder.Services.AddVersionedApiExplorer(options =>
             {
                 options.GroupNameFormat = "'v'VVV";
@@ -29,9 +39,9 @@ namespace HotelSearchService
             });
             builder.Services.AddApiVersioning(options =>
             {
-                options.AssumeDefaultVersionWhenUnspecified = true; 
-                options.DefaultApiVersion = new Microsoft.AspNetCore.Mvc.ApiVersion(1, 0); 
-                options.ReportApiVersions = true; 
+                options.AssumeDefaultVersionWhenUnspecified = true;
+                options.DefaultApiVersion = new Microsoft.AspNetCore.Mvc.ApiVersion(1, 0);
+                options.ReportApiVersions = true;
                 options.ApiVersionReader = new Microsoft.AspNetCore.Mvc.Versioning.HeaderApiVersionReader("x-api-version"); // Optional: read version from header
             });
             builder.Services.AddSingleton<IConnectionMultiplexer>(

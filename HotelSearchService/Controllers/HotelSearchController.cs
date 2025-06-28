@@ -1,11 +1,13 @@
 ﻿using HotelSearchService.Models;
 using HotelSearchService.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HotelSearchService.Controllers
 {
     [ApiController]
-    [Route("api/v1/[controller]")]
+    [Route("api/v{version:apiVersion}/[controller]")]
+    [ApiVersion("1.0")]
     public class HotelSearchController : ControllerBase
     {
         private readonly IHotelSearchService _hotelSearchService;
