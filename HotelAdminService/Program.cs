@@ -6,6 +6,7 @@ using Microsoft.IdentityModel.Tokens;
 using HotelAdminService.Data;
 using HotelAdminService.Mappings;
 using Microsoft.OpenApi.Models;
+using StackExchange.Redis;
 
 namespace HotelAdminService
 {
@@ -82,6 +83,10 @@ namespace HotelAdminService
                 options.ReportApiVersions = true; // Return API supported versions in response headers
                 options.ApiVersionReader = new Microsoft.AspNetCore.Mvc.Versioning.HeaderApiVersionReader("x-api-version"); // Optional: read version from header
             });
+            builder.Services.AddSingleton<IConnectionMultiplexer>(
+                ConnectionMultiplexer.Connect("localhost:6379"));
+
+            builder.Services.AddScoped<HotelAdminService.Services.HotelCacheService>();
 
             var app = builder.Build();
 

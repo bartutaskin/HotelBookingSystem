@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
-using HotelAdminService.Models.DTOs;
 using HotelAdminService.Models;
+using HotelContracts.DTOs;
 
 namespace HotelAdminService.Mappings
 {
@@ -11,6 +11,7 @@ namespace HotelAdminService.Mappings
             CreateMap<HotelDto, Hotel>();
             CreateMap<Hotel, HotelDto>();
             CreateMap<HotelCreateDto, Hotel>();
+            CreateMap<Hotel, HotelWithRoomsDto>();
 
             // Room mappings
             CreateMap<Room, RoomDto>();

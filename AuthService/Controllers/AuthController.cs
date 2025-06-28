@@ -43,5 +43,19 @@ namespace AuthService.Controllers
                 return BadRequest(ex.Message);
             }
         }
+        [HttpGet("users/{userId}")]
+        public async Task<IActionResult> GetUser(int userId)
+        {
+            var user = await _authService.GetUserByIdAsync(userId);
+            if (user == null) return NotFound();
+
+            return Ok(new
+            {
+                user.Id,
+                user.Username,
+                user.Email,
+                user.Role
+            });
+        }
     }
 }

@@ -14,7 +14,7 @@
         },
         {
             "DownstreamPathTemplate": "/api/v1/hotel/{everything}",
-            "DownstreamScheme": "https",
+            "DownstreamScheme": "http",
             "DownstreamHostAndPorts": [
                 {
                     "Host": "localhost",
@@ -26,6 +26,6 @@
         }
     ],
     "GlobalConfiguration": {
-        "BaseUrl": "https://localhost:7181"
+        "BaseUrl": "http://localhost:7181"
     }
 }

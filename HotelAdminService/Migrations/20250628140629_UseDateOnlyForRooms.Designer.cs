@@ -3,6 +3,7 @@ using System;
 using HotelAdminService.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace HotelAdminService.Migrations
 {
     [DbContext(typeof(HotelDbContext))]
-    partial class HotelDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250628140629_UseDateOnlyForRooms")]
+    partial class UseDateOnlyForRooms
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -37,12 +40,6 @@ namespace HotelAdminService.Migrations
                     b.Property<string>("City")
                         .IsRequired()
                         .HasColumnType("text");
-
-                    b.Property<double?>("Latitude")
-                        .HasColumnType("double precision");
-
-                    b.Property<double?>("Longitude")
-                        .HasColumnType("double precision");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -85,37 +82,6 @@ namespace HotelAdminService.Migrations
                     b.HasIndex("HotelId");
 
                     b.ToTable("Rooms");
-                });
-
-            modelBuilder.Entity("HotelContracts.DTOs.Booking", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<DateOnly>("CheckIn")
-                        .HasColumnType("date");
-
-                    b.Property<DateOnly>("CheckOut")
-                        .HasColumnType("date");
-
-                    b.Property<int>("Guests")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("RoomId")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("Status")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("UserId")
-                        .HasColumnType("integer");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Bookings");
                 });
 
             modelBuilder.Entity("HotelAdminService.Models.Room", b =>
