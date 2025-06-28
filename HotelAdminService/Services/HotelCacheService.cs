@@ -1,4 +1,4 @@
-﻿using HotelAdminService.Models.DTOs;
+﻿using HotelContracts.DTOs;
 using StackExchange.Redis;
 using System.Text.Json;
 

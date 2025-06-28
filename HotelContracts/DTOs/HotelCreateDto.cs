@@ -1,4 +1,4 @@
-﻿namespace HotelAdminService.Models.DTOs
+﻿namespace HotelContracts.DTOs
 {
     public class HotelCreateDto
     {

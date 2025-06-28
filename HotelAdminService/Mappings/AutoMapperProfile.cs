@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
-using HotelAdminService.Models.DTOs;
 using HotelAdminService.Models;
+using HotelContracts.DTOs;
 
 namespace HotelAdminService.Mappings
 {

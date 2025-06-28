@@ -1,8 +1,8 @@
 ﻿using AutoMapper;
 using HotelAdminService.Data;
 using HotelAdminService.Models;
-using HotelAdminService.Models.DTOs;
 using HotelAdminService.Services;
+using HotelContracts.DTOs;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
