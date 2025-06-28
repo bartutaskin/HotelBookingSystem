@@ -23,6 +23,36 @@ namespace HotelAdminService.Controllers
             _mapper = mapper;
         }
 
+        [HttpGet]
+        public async Task<IActionResult> GetAllHotels()
+        {
+            var hotels = await _context.Hotels.Include(h => h.Rooms).ToListAsync();
+            var hotelDtos = _mapper.Map<List<HotelWithRoomsDto>>(hotels);
+            return Ok(hotelDtos);
+        }
+
+        [HttpGet("{hotelId}")]
+        public async Task<IActionResult> GetHotelById(int hotelId)
+        {
+            var hotel = await _context.Hotels.Include(h => h.Rooms).FirstOrDefaultAsync(h => h.Id == hotelId);
+            if (hotel == null)
+                return NotFound("Hotel not found");
+
+            var hotelDto = _mapper.Map<HotelWithRoomsDto>(hotel);
+            return Ok(hotelDto);
+        }
+
+        [HttpGet("room/{roomId}")]
+        public async Task<IActionResult> GetRoomById(int roomId)
+        {
+            var room = await _context.Rooms.FirstOrDefaultAsync(r => r.Id == roomId);
+            if (room == null)
+                return NotFound("Room not found");
+
+            var roomDto = _mapper.Map<RoomDto>(room);
+            return Ok(roomDto);
+        }
+
         [HttpPost]
         public async Task<IActionResult> CreateHotel(HotelCreateDto dto)
         {

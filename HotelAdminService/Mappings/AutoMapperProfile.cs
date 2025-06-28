@@ -11,6 +11,7 @@ namespace HotelAdminService.Mappings
             CreateMap<HotelDto, Hotel>();
             CreateMap<Hotel, HotelDto>();
             CreateMap<HotelCreateDto, Hotel>();
+            CreateMap<Hotel, HotelWithRoomsDto>();
 
             // Room mappings
             CreateMap<Room, RoomDto>();
