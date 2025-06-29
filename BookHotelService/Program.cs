@@ -4,7 +4,6 @@ using HotelAdminService.Data;
 using MassTransit;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using Serilog;
 
 namespace BookHotelService
 {
@@ -17,7 +16,6 @@ namespace BookHotelService
             // Add services to the container.
 
             builder.Services.AddControllers();
-            // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
             builder.Services.AddScoped<IBookHotelService, BookHotelService.Services.BookHotelService>();
@@ -30,15 +28,15 @@ namespace BookHotelService
             });
             builder.Services.AddApiVersioning(options =>
             {
-                options.AssumeDefaultVersionWhenUnspecified = true; // If client doesn't specify version, use default
-                options.DefaultApiVersion = new Microsoft.AspNetCore.Mvc.ApiVersion(1, 0); // Default version is v1.0
-                options.ReportApiVersions = true; // Return API supported versions in response headers
-                options.ApiVersionReader = new Microsoft.AspNetCore.Mvc.Versioning.HeaderApiVersionReader("x-api-version"); // Optional: read version from header
+                options.AssumeDefaultVersionWhenUnspecified = true;
+                options.DefaultApiVersion = new Microsoft.AspNetCore.Mvc.ApiVersion(1, 0);
+                options.ReportApiVersions = true;
+                options.ApiVersionReader = new Microsoft.AspNetCore.Mvc.Versioning.HeaderApiVersionReader("x-api-version");
             });
             var authServiceUrl = builder.Configuration["AuthService:BaseUrl"];
             builder.Services.AddHttpClient<IAuthClient, AuthClient>(client =>
             {
-                client.BaseAddress = new Uri(authServiceUrl); // AuthService URL
+                client.BaseAddress = new Uri(authServiceUrl);
             });
             builder.Services.AddMassTransit(x =>
             {
@@ -58,7 +56,8 @@ namespace BookHotelService
                     });
                 });
             });
-            builder.Logging.AddFile("Logs/log-{Date}.txt");
+
+
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.
@@ -71,7 +70,6 @@ namespace BookHotelService
             app.UseHttpsRedirection();
 
             app.UseAuthorization();
-
 
             app.MapControllers();
 

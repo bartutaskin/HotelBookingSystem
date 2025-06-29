@@ -1,4 +1,4 @@
-﻿using BookHotelService.Messages;
+﻿using HotelContracts.Events;
 using MassTransit;
 using System.Threading.Tasks;
 
