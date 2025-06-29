@@ -1,5 +1,4 @@
-﻿
-using BookHotelService.Models;
+﻿using BookHotelService.Models;
 using HotelAdminService.Data;
 using HotelContracts.DTOs;
 using HotelContracts.Events;
@@ -33,43 +32,46 @@ namespace BookHotelService.Services
                     return new BookingResult { Success = false, Message = "Room not found." };
                 }
 
+                // Validate check-in/check-out dates
+                if (request.CheckOut <= request.CheckIn)
+                {
+                    return new BookingResult
+                    {
+                        Success = false,
+                        Message = "Check-out date must be after check-in date."
+                    };
+                }
+
+                // Validate requested booking dates are within room availability
+                if (request.CheckIn < room.AvailableFrom || request.CheckOut > room.AvailableTo)
+                {
+                    return new BookingResult
+                    {
+                        Success = false,
+                        Message = $"Booking dates must be within room availability: {room.AvailableFrom:yyyy-MM-dd} to {room.AvailableTo:yyyy-MM-dd}."
+                    };
+                }
+
                 if (request.Guests > room.Capacity)
                 {
                     return new BookingResult { Success = false, Message = "Requested guests exceed room capacity." };
                 }
 
-                // Check if user already has a booking for this room & overlapping dates
-                var existingBooking = await _context.Bookings
-                    .FirstOrDefaultAsync(b =>
+                // Check for overlapping confirmed bookings (any user)
+                var overlappingBookingExists = await _context.Bookings
+                    .AnyAsync(b =>
                         b.RoomId == request.RoomId &&
-                        b.UserId == request.UserId &&
                         b.Status == BookingStatus.Confirmed &&
-                        b.CheckIn < request.CheckOut &&
-                        b.CheckOut > request.CheckIn);
+                        b.CheckIn < request.CheckOut &&    // Existing booking starts before requested booking ends
+                        b.CheckOut > request.CheckIn);    // Existing booking ends after requested booking starts
 
-                if (existingBooking != null)
+                if (overlappingBookingExists)
                 {
                     return new BookingResult
                     {
                         Success = false,
-                        Message = "You already have a booking for this room during the requested dates."
+                        Message = "This room is already booked for the requested dates."
                     };
-                }
-
-                // Calculate capacity with all confirmed overlapping bookings
-                var overlappingBookings = await _context.Bookings
-                    .Where(b => b.RoomId == request.RoomId &&
-                                b.Status == BookingStatus.Confirmed &&
-                                b.CheckIn < request.CheckOut &&
-                                b.CheckOut > request.CheckIn)
-                    .ToListAsync();
-
-                int bookedGuests = overlappingBookings.Sum(b => b.Guests);
-                int availableCapacity = room.Capacity - bookedGuests;
-
-                if (availableCapacity < request.Guests)
-                {
-                    return new BookingResult { Success = false, Message = "Not enough capacity available for the requested dates." };
                 }
 
                 var booking = new Booking
