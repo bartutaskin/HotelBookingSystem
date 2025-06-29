@@ -69,6 +69,7 @@ namespace BookHotelService.Services
 
                 var booking = new Booking
                 {
+                    HotelId = request.HotelId,
                     RoomId = request.RoomId,
                     CheckIn = request.CheckIn,
                     CheckOut = request.CheckOut,

@@ -174,5 +174,90 @@ namespace HotelAdminService.Controllers
             var roomDto = _mapper.Map<RoomDto>(room);
             return Ok(roomDto);
         }
+
+        [HttpGet("capacity")]
+        public async Task<IActionResult> GetHotelCapacitiesForNextMonth()
+        {
+            var startDate = DateOnly.FromDateTime(DateTime.UtcNow);
+            var endDate = startDate.AddMonths(1);
+
+            var hotels = await _context.Hotels
+                .Include(h => h.Rooms)
+                .ToListAsync();
+
+            var results = new List<object>();
+
+            foreach (var hotel in hotels)
+            {
+                int totalCapacity = 0;
+                foreach (var room in hotel.Rooms)
+                {
+                    if (room.AvailableFrom <= startDate && room.AvailableTo >= endDate)
+                    {
+                        totalCapacity += room.Capacity;
+                    }
+                }
+
+                // Get bookings for rooms of this hotel overlapping next month
+                var bookings = await _context.Bookings
+                    .Where(b => b.Status == BookingStatus.Confirmed
+                                && b.CheckIn < endDate
+                                && b.CheckOut > startDate)
+                    .Join(_context.Rooms,
+                          booking => booking.RoomId,
+                          room => room.Id,
+                          (booking, room) => new { booking, room })
+                    .Where(br => br.room.HotelId == hotel.Id)
+                    .Select(br => br.booking)
+                    .ToListAsync();
+
+                int bookedGuests = bookings.Sum(b => b.Guests);
+
+                double capacityPercent = totalCapacity == 0 ? 0 : ((totalCapacity - bookedGuests) / (double)totalCapacity) * 100;
+
+                results.Add(new
+                {
+                    HotelId = hotel.Id,
+                    HotelName = hotel.Name,
+                    CapacityPercentage = capacityPercent,
+                    AdminEmail = "admin@example.com" // Replace with real admin emails if available
+                });
+            }
+
+            return Ok(results);
+        }
+        [HttpGet("{hotelId}/bookedguests")]
+        public async Task<IActionResult> GetBookedGuestsCount(
+            int hotelId,
+            [FromQuery] DateOnly start,
+            [FromQuery] DateOnly end)
+        {
+            // Validate dates
+            if (start > end)
+            {
+                return BadRequest("Start date must be before end date.");
+            }
+
+            // Check if hotel exists
+            var hotelExists = await _context.Hotels.AnyAsync(h => h.Id == hotelId);
+            if (!hotelExists)
+            {
+                return NotFound("Hotel not found.");
+            }
+
+            // Query confirmed bookings for rooms in the hotel overlapping the date range
+            var bookedGuests = await _context.Bookings
+                .Where(b => b.Status == BookingStatus.Confirmed &&
+                            b.CheckIn < end &&
+                            b.CheckOut > start)
+                .Join(_context.Rooms,
+                      booking => booking.RoomId,
+                      room => room.Id,
+                      (booking, room) => new { booking, room })
+                .Where(br => br.room.HotelId == hotelId)
+                .SumAsync(br => br.booking.Guests);
+
+            return Ok(bookedGuests);
+        }
     }
 }
