@@ -1,0 +1,6 @@
+@HotelCommentsService_HostAddress = http://localhost:5018
+
+GET {{HotelCommentsService_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
