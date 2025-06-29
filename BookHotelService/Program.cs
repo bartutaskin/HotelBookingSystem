@@ -1,7 +1,10 @@
 
 using BookHotelService.Services;
 using HotelAdminService.Data;
+using MassTransit;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
+using Serilog;
 
 namespace BookHotelService
 {
@@ -32,10 +35,30 @@ namespace BookHotelService
                 options.ReportApiVersions = true; // Return API supported versions in response headers
                 options.ApiVersionReader = new Microsoft.AspNetCore.Mvc.Versioning.HeaderApiVersionReader("x-api-version"); // Optional: read version from header
             });
+            var authServiceUrl = builder.Configuration["AuthService:BaseUrl"];
             builder.Services.AddHttpClient<IAuthClient, AuthClient>(client =>
             {
-                client.BaseAddress = new Uri("https://localhost:7217"); // AuthService URL
+                client.BaseAddress = new Uri(authServiceUrl); // AuthService URL
             });
+            builder.Services.AddMassTransit(x =>
+            {
+                x.AddConsumer<NewReservationConsumer>();
+
+                x.UsingRabbitMq((context, cfg) =>
+                {
+                    cfg.Host("localhost", "/", h =>
+                    {
+                        h.Username("guest");
+                        h.Password("guest");
+                    });
+
+                    cfg.ReceiveEndpoint("new_reservations_queue", e =>
+                    {
+                        e.ConfigureConsumer<NewReservationConsumer>(context);
+                    });
+                });
+            });
+            builder.Logging.AddFile("Logs/log-{Date}.txt");
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.

@@ -1,6 +1,9 @@
-﻿using BookHotelService.Models;
+﻿
+using BookHotelService.Models;
 using HotelAdminService.Data;
 using HotelContracts.DTOs;
+using HotelContracts.Events;
+using MassTransit;
 using Microsoft.EntityFrameworkCore;
 
 namespace BookHotelService.Services
@@ -8,10 +11,12 @@ namespace BookHotelService.Services
     public class BookHotelService : IBookHotelService
     {
         private readonly HotelDbContext _context;
+        private readonly IPublishEndpoint _publishEndpoint;
 
-        public BookHotelService(HotelDbContext context)
+        public BookHotelService(HotelDbContext context, IPublishEndpoint publishEndpoint)
         {
             _context = context;
+            _publishEndpoint = publishEndpoint;
         }
 
         public async Task<BookingResult> BookHotelAsync(BookingRequest request)
@@ -80,6 +85,18 @@ namespace BookHotelService.Services
 
                 _context.Bookings.Add(booking);
                 await _context.SaveChangesAsync();
+
+                // Publish event message after booking is saved
+                await _publishEndpoint.Publish(new NewReservation
+                {
+                    BookingId = booking.Id,
+                    HotelId = booking.HotelId,
+                    RoomId = booking.RoomId,
+                    UserId = booking.UserId,
+                    CheckIn = booking.CheckIn,
+                    CheckOut = booking.CheckOut,
+                    Guests = booking.Guests
+                });
 
                 await transaction.CommitAsync();
 

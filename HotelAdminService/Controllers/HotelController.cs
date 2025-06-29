@@ -192,7 +192,7 @@ namespace HotelAdminService.Controllers
                 int totalCapacity = 0;
                 foreach (var room in hotel.Rooms)
                 {
-                    if (room.AvailableFrom <= startDate && room.AvailableTo >= endDate)
+                    if (room.AvailableTo >= startDate && room.AvailableFrom <= endDate)
                     {
                         totalCapacity += room.Capacity;
                     }
@@ -200,15 +200,10 @@ namespace HotelAdminService.Controllers
 
                 // Get bookings for rooms of this hotel overlapping next month
                 var bookings = await _context.Bookings
-                    .Where(b => b.Status == BookingStatus.Confirmed
-                                && b.CheckIn < endDate
-                                && b.CheckOut > startDate)
-                    .Join(_context.Rooms,
-                          booking => booking.RoomId,
-                          room => room.Id,
-                          (booking, room) => new { booking, room })
-                    .Where(br => br.room.HotelId == hotel.Id)
-                    .Select(br => br.booking)
+                    .Where(b => b.Status == BookingStatus.Confirmed &&
+                                b.HotelId == hotel.Id &&
+                                b.CheckIn < endDate &&
+                                b.CheckOut > startDate)
                     .ToListAsync();
 
                 int bookedGuests = bookings.Sum(b => b.Guests);
@@ -248,14 +243,10 @@ namespace HotelAdminService.Controllers
             // Query confirmed bookings for rooms in the hotel overlapping the date range
             var bookedGuests = await _context.Bookings
                 .Where(b => b.Status == BookingStatus.Confirmed &&
+                            b.HotelId == hotelId &&
                             b.CheckIn < end &&
                             b.CheckOut > start)
-                .Join(_context.Rooms,
-                      booking => booking.RoomId,
-                      room => room.Id,
-                      (booking, room) => new { booking, room })
-                .Where(br => br.room.HotelId == hotelId)
-                .SumAsync(br => br.booking.Guests);
+                .SumAsync(b => b.Guests);
 
             return Ok(bookedGuests);
         }
