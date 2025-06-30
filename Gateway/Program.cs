@@ -27,8 +27,9 @@ namespace Gateway
                             .AllowAnyHeader();
                     });
             });
-
             var app = builder.Build();
+
+            app.UseWebSockets();
 
             // Enable CORS before Ocelot
             app.UseCors("AllowAll");

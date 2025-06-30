@@ -10,11 +10,11 @@
                 }
             ],
             "UpstreamPathTemplate": "/v1/auth/{everything}",
-            "UpstreamHttpMethod": [ "POST", "GET" ]
+            "UpstreamHttpMethod": [ "POST", "GET", "PUT" ]
         },
         {
             "DownstreamPathTemplate": "/api/v1/hotel/{everything}",
-            "DownstreamScheme": "http",
+            "DownstreamScheme": "https",
             "DownstreamHostAndPorts": [
                 {
                     "Host": "localhost",
@@ -23,6 +23,54 @@
             ],
             "UpstreamPathTemplate": "/v1/hotel/{everything}",
             "UpstreamHttpMethod": [ "POST", "GET", "PUT" ]
+        },
+        {
+            "DownstreamPathTemplate": "/api/v1/booking",
+            "DownstreamScheme": "https",
+            "DownstreamHostAndPorts": [
+                {
+                    "Host": "localhost",
+                    "Port": 7197
+                }
+            ],
+            "UpstreamPathTemplate": "/v1/booking",
+            "UpstreamHttpMethod": [ "POST", "GET", "PUT" ]
+        },
+        {
+            "DownstreamPathTemplate": "/api/v1/comments/{everything}",
+            "DownstreamScheme": "https",
+            "DownstreamHostAndPorts": [
+                {
+                    "Host": "localhost",
+                    "Port": 7275
+                }
+            ],
+            "UpstreamPathTemplate": "/v1/comments/{everything}",
+            "UpstreamHttpMethod": [ "POST", "GET", "PUT" ]
+        },
+        {
+            "DownstreamPathTemplate": "/api/v1/HotelSearch/{everything}",
+            "DownstreamScheme": "https",
+            "DownstreamHostAndPorts": [
+                {
+                    "Host": "localhost",
+                    "Port": 7231
+                }
+            ],
+            "UpstreamPathTemplate": "/v1/HotelSearch/{everything}",
+            "UpstreamHttpMethod": [ "POST", "GET", "PUT" ]
+        },
+        {
+            "DownstreamPathTemplate": "/notificationHub",
+            "DownstreamScheme": "https",
+            "DownstreamHostAndPorts": [
+                {
+                    "Host": "localhost",
+                    "Port": 7200
+                }
+            ],
+            "UpstreamPathTemplate": "/notificationHub",
+            "UpstreamHttpMethod": [ "GET" ]
         }
     ],
     "GlobalConfiguration": {
