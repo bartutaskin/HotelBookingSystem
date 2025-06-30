@@ -1,7 +1,9 @@
 ﻿using HotelAdminService.Data;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using NotificationService.Hubs;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
@@ -13,11 +15,15 @@ namespace NotificationService.Services
         private readonly ILogger<CapacityCheckService> _logger;
         private readonly IServiceProvider _serviceProvider;
         private readonly TimeSpan _runTime = TimeSpan.FromHours(0); // Midnight UTC
+        private readonly IHubContext<NotificationHub> _hubContext;
 
-        public CapacityCheckService(ILogger<CapacityCheckService> logger, IServiceProvider serviceProvider)
+        public CapacityCheckService(ILogger<CapacityCheckService> logger, 
+            IServiceProvider serviceProvider,
+            IHubContext<NotificationHub> hubContext)
         {
             _logger = logger;
             _serviceProvider = serviceProvider;
+            _hubContext = hubContext;
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -80,6 +86,11 @@ namespace NotificationService.Services
                 if (capacityPercent < 20)
                 {
                     _logger.LogWarning($"Hotel {hotel.Name} (ID: {hotel.Id}) capacity low: {capacityPercent:F2}% remaining. Notify admin!");
+                    await _hubContext.Clients.All.SendAsync("ReceiveNotification", new
+                    {
+                        Title = $"Hotel {hotel.Name} capacity low",
+                        Message = $"Hotel '{hotel.Name}' (ID: {hotel.Id}) has only {capacityPercent:P0} capacity remaining."
+                    });
                 }
             }
         }
