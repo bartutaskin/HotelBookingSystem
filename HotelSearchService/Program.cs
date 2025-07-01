@@ -21,11 +21,8 @@ namespace HotelSearchService
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
 
+            builder.Services.AddSingleton<IHotelCacheService, HotelCacheService>();
             builder.Services.AddScoped<IHotelSearchService, HotelSearchService.Services.HotelSearchService>();
-            builder.Services.AddSingleton<HotelCacheService>();
-            builder.Services.AddScoped<IHotelSearchService, HotelSearchService.Services.HotelSearchService>();
-
-
 
             builder.Services.AddSwaggerGen(c =>
             {
