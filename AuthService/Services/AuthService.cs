@@ -6,6 +6,7 @@ using AuthService.Models.Entities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using AuthService.Models.DTOs;
 
 namespace AuthService.Services
 {
@@ -42,9 +43,9 @@ namespace AuthService.Services
             return GenerateJwt(user);
         }
 
-        public Task<string> LoginAsync(string username, string password)
+        public async Task<LoginResponse> LoginAsync(string username, string password)
         {
-            var user = _db.Users.FirstOrDefault(u => u.Username == username);
+            var user = await _db.Users.FirstOrDefaultAsync(u => u.Username == username);
             if (user == null)
                 throw new Exception("User not found");
 
@@ -53,7 +54,13 @@ namespace AuthService.Services
                 throw new Exception("Invalid password");
 
             var token = GenerateJwt(user);
-            return Task.FromResult(token);
+
+            return new LoginResponse
+            {
+                Token = token,
+                Id = user.Id,
+                Role = user.Role
+            };
         }
 
         private string GenerateJwt(User user)

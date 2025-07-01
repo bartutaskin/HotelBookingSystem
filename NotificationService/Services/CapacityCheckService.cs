@@ -28,7 +28,7 @@ namespace NotificationService.Services
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            var isTest = false; // or get from config/env
+            var isTest = false; 
 
             if (isTest)
             {

@@ -11,7 +11,7 @@
 
         public async Task<bool> UserExistsAsync(int userId)
         {
-            var response = await _httpClient.GetAsync($"/api/v1/Auth/users/{userId}");
+            var response = await _httpClient.GetAsync($"/v1/Auth/users/{userId}");
             return response.IsSuccessStatusCode;
         }
     }

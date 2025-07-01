@@ -43,7 +43,7 @@ namespace HotelSearchService
             });
             builder.Services.AddSingleton<IConnectionMultiplexer>(
                 ConnectionMultiplexer.Connect("localhost:6379"));
-
+            
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.
