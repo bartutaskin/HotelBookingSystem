@@ -4,6 +4,7 @@ import ClientHotelList from "./ClientHotelList";
 import BookingForm from "./BookingForm";
 import Toast from "./Toast";
 import Comments from "./Comments";
+import AiAgentChat from "./AiAgentChat";
 
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
@@ -147,6 +148,18 @@ export default function ClientHome({ onLogout, token, userId }) {
     }
   };
 
+  // New handler to open booking form from AI chat results
+  const openBookingFromAi = (hotel, room) => {
+    setBookingForm({
+      checkIn: "",
+      checkOut: "",
+      guests: 1,
+      showForm: true,
+      hotel,
+      room,
+    });
+  };
+
   return (
     <div
       style={{
@@ -177,6 +190,25 @@ export default function ClientHome({ onLogout, token, userId }) {
         >
           Show All Hotels
         </button>
+
+        <AiAgentChat
+  token={token}
+  userId={userId}
+  showToast={showToast}
+  onBookRoom={(hotel, room) => {
+    setBookingForm({
+      checkIn: "",
+      checkOut: "",
+      guests: 1,
+      showForm: true,
+      hotel,
+      room,
+    });
+    setSelectedHotel(hotel);
+    setSelectedRoom(room);
+  }}
+/>
+
       </div>
 
       <div style={{ flex: "1", minWidth: 0 }}>

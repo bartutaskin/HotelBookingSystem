@@ -119,6 +119,8 @@ User input: "{user_input.message}"
         print("DEBUG > LLM response:", result_text)
 
         cleaned_text = extract_json(result_text)
+        print("DEBUG > cleaned_text:", repr(cleaned_text))
+
         result_json = json.loads(cleaned_text)
 
         base_url = os.getenv("GATEWAY_URL")
@@ -153,16 +155,24 @@ User input: "{user_input.message}"
         print("Calling URL:", route_info["url"])
 
         response = await send_request(route_info)
+
+        # If booking endpoint returned success, indicate bookingSuccess even if LLM parse was wonky
+        if intent == "book" and response.status_code == 200:
+            return {
+                "bookingSuccess": True,
+                "message": "Booking saved successfully.",
+            }
+
+        # Normal case: return intent and response JSON
         return {"intent": intent, "response": response.json()}
 
-    except json.JSONDecodeError:
+    except json.JSONDecodeError as e:
+        # This means LLM response JSON parsing failed
+        print("JSONDecodeError:", e)
+
+        # You could still try to parse partial info or just return bookingSuccess if booking happened
+        # But safest here is to indicate parsing error, but no bookingSuccess (frontend will handle)
+
         return {"error": "Failed to parse LLM JSON response."}
     except Exception as e:
         return {"error": str(e)}
-
-
-@app.get("/")
-def root():
-    return {
-        "message": 'AI Agent is running. Use POST /ai-agent with {"message": "...", "userId": ...}.'
-    }
