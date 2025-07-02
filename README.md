@@ -91,3 +91,58 @@ Watch the project demo on YouTube:
 | AI Integration | OpenAI API |
 
 ---
+
+## 🗃️ Database Design
+
+The system uses two main relational databases:
+
+### 📌 HotelAuthDb
+This database stores all user-related data.
+
+**Tables:**
+- `Users` – Contains user information such as ID, email, password hash, and role (Client or Admin).
+
+Used by: **AuthService**
+
+---
+
+### 📌 HotelDb
+This is the core operational database for hotel management and bookings.
+
+**Tables:**
+- `Hotels` – Contains hotel metadata (name, address, destination, etc.)
+- `Rooms` – Linked to hotels, includes room type, price, capacity
+- `Bookings` – Tracks guest bookings with check-in/check-out and room references
+
+Used by: **HotelAdminService** and **BookHotelService**
+
+### 📊 ER Diagram
+
+![Hotel ER Diagram](https://github.com/user-attachments/assets/33b5d3eb-fc25-41c3-a653-c8ead6b43ec9)
+
+---
+
+### 🧾 Notes:
+- MongoDB is used separately by **HotelCommentService** for unstructured hotel reviews.
+- Redis is used for caching hotel data and improving search performance.
+
+- ## 🐳 Docker Setup
+
+This project uses **Docker** and **Docker Compose** to containerize and orchestrate all services and infrastructure components.
+
+### 📦 Included Containers
+
+- `authservice` – Handles authentication and authorization
+- `bookhotelservice` – Manages hotel bookings
+- `hoteladminservice` – Admin panel for hotels and rooms
+- `hotelcommentservice` – Manages hotel comments using MongoDB
+- `hotelsearchservice` – Handles hotel search with Redis caching
+- `notificationservice` – Sends alerts for low capacity and new bookings
+- `gateway` – API Gateway for routing requests (Ocelot)
+- `postgres_auth` – PostgreSQL database for AuthService
+- `postgres_hotel` – PostgreSQL database for hotel data
+- `mongodb` – NoSQL database for comments
+- `redis` – In-memory cache for hotel data
+- `rabbitmq` – Message broker for async communication
+
+
