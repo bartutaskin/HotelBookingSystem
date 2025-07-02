@@ -1,4 +1,4 @@
-﻿using HotelContracts.DTOs; 
+﻿using HotelContracts.DTOs;
 using StackExchange.Redis;
 using System.Collections.Generic;
 using System.Text.Json;
@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace HotelSearchService.Services
 {
-    public class HotelCacheService
+    public class HotelCacheService : IHotelCacheService
     {
         private readonly IDatabase _redisDb;
         private readonly IConnectionMultiplexer _redis;

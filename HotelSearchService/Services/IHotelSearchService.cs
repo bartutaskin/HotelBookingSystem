@@ -1,10 +1,12 @@
 ﻿using HotelSearchService.Models.DTOs;
 using HotelSearchService.Models;
+using HotelContracts.DTOs;
 
 namespace HotelSearchService.Services
 {
     public interface IHotelSearchService
     {
-        Task<List<HotelSearchResultDto>> SearchAsync(HotelSearchRequest request, bool isAuthenticated);
+        Task<PagedResult<HotelSearchResultDto>> SearchAsync(HotelSearchRequest request, bool isAuthenticated, int pageNumber, int pageSize);
+
     }
 }

@@ -35,14 +35,15 @@ namespace AuthService.Controllers
         {
             try
             {
-                var token = await _authService.LoginAsync(request.Username, request.Password);
-                return Ok(new { token });
+                var loginResponse = await _authService.LoginAsync(request.Username, request.Password);
+                return Ok(loginResponse);
             }
             catch (Exception ex)
             {
                 return BadRequest(ex.Message);
             }
         }
+
         [HttpGet("users/{userId}")]
         public async Task<IActionResult> GetUser(int userId)
         {

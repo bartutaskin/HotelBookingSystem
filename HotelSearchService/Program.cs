@@ -22,9 +22,7 @@ namespace HotelSearchService
             builder.Services.AddSwaggerGen();
 
             builder.Services.AddScoped<IHotelSearchService, HotelSearchService.Services.HotelSearchService>();
-            builder.Services.AddSingleton<HotelCacheService>();
-            builder.Services.AddScoped<IHotelSearchService, HotelSearchService.Services.HotelSearchService>();
-
+            builder.Services.AddSingleton<IHotelCacheService, HotelCacheService>();
 
 
             builder.Services.AddSwaggerGen(c =>

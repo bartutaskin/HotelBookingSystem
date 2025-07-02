@@ -22,7 +22,7 @@ namespace AuthService
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddVersionedApiExplorer(options =>
             {
-                options.GroupNameFormat = "'v'VVV"; 
+                options.GroupNameFormat = "'v'VVV";
                 options.SubstituteApiVersionInUrl = true;
             });
 

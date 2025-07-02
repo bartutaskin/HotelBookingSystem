@@ -1,18 +1,23 @@
-﻿using HotelSearchService.Models;
+﻿using HotelContracts.DTOs;
+using HotelSearchService.Models;
 using HotelSearchService.Models.DTOs;
 
 namespace HotelSearchService.Services
 {
     public class HotelSearchService : IHotelSearchService
     {
-        private readonly HotelCacheService _hotelCacheService;
+        private readonly IHotelCacheService _hotelCacheService;
 
-        public HotelSearchService(HotelCacheService hotelCacheService)
+        public HotelSearchService(IHotelCacheService hotelCacheService)
         {
             _hotelCacheService = hotelCacheService;
         }
 
-        public async Task<List<HotelSearchResultDto>> SearchAsync(HotelSearchRequest request, bool isAuthenticated)
+        public async Task<PagedResult<HotelSearchResultDto>> SearchAsync(
+            HotelSearchRequest request,
+            bool isAuthenticated,
+            int pageNumber,
+            int pageSize)
         {
             var allHotels = await _hotelCacheService.GetAllCachedHotelsAsync();
 
@@ -60,7 +65,22 @@ namespace HotelSearchService.Services
                 }
             }
 
-            return results;
+            int totalCount = results.Count;
+            int totalPages = (int)Math.Ceiling(totalCount / (double)pageSize);
+
+            var pagedItems = results
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .ToList();
+
+            return new PagedResult<HotelSearchResultDto>
+            {
+                PageNumber = pageNumber,
+                PageSize = pageSize,
+                TotalCount = totalCount,
+                TotalPages = totalPages,
+                Items = pagedItems
+            };
         }
     }
 }
