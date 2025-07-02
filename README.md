@@ -145,4 +145,15 @@ This project uses **Docker** and **Docker Compose** to containerize and orchestr
 - `redis` – In-memory cache for hotel data
 - `rabbitmq` – Message broker for async communication
 
+## 🔐 Demo Credentials
+
+Use the following accounts to log in and test the system through the frontend or API:
+
+### 👑 Admin Account
+- **Username:** `test`
+- **Password:** `test123`
+
+### 🙋 Client Account
+- **Username:** `client1`
+- **Password:** `client1`
 
