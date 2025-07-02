@@ -3,7 +3,7 @@ import { BarChart, Bar, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer } fro
 
 const COMMENTS_API_BASE = "https://localhost:7181/v1/Comments";
 
-export default function Comments({ token, hotelId, userId, showToast }) {
+export default function Comments({ token, hotelId, userId, showToast, disableForm = false }) {
   const [comments, setComments] = useState([]);
   const [distribution, setDistribution] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -98,59 +98,63 @@ export default function Comments({ token, hotelId, userId, showToast }) {
 
   return (
     <div style={{ maxWidth: 600, marginTop: 20, fontFamily: "Arial, sans-serif" }}>
-      <h3>Add Comment</h3>
-      <div style={{ marginBottom: 20 }}>
-        <label>
-          Service Type:
-          <input
-            type="text"
-            value={form.serviceType}
-            onChange={(e) => setForm({ ...form, serviceType: e.target.value })}
-            style={{ width: "100%", marginTop: 4, marginBottom: 8, padding: 6 }}
-          />
-        </label>
+      {!disableForm && (
+        <>
+          <h3>Add Comment</h3>
+          <div style={{ marginBottom: 20 }}>
+            <label>
+              Service Type:
+              <input
+                type="text"
+                value={form.serviceType}
+                onChange={(e) => setForm({ ...form, serviceType: e.target.value })}
+                style={{ width: "100%", marginTop: 4, marginBottom: 8, padding: 6 }}
+              />
+            </label>
 
-        <label>
-          Rating:
-          <select
-            value={form.rating}
-            onChange={(e) => setForm({ ...form, rating: parseInt(e.target.value) })}
-            style={{ width: "100%", marginTop: 4, marginBottom: 8, padding: 6 }}
-          >
-            {[5, 4, 3, 2, 1].map((r) => (
-              <option key={r} value={r}>
-                {r} Star{r > 1 ? "s" : ""}
-              </option>
-            ))}
-          </select>
-        </label>
+            <label>
+              Rating:
+              <select
+                value={form.rating}
+                onChange={(e) => setForm({ ...form, rating: parseInt(e.target.value) })}
+                style={{ width: "100%", marginTop: 4, marginBottom: 8, padding: 6 }}
+              >
+                {[5, 4, 3, 2, 1].map((r) => (
+                  <option key={r} value={r}>
+                    {r} Star{r > 1 ? "s" : ""}
+                  </option>
+                ))}
+              </select>
+            </label>
 
-        <label>
-          Comment:
-          <textarea
-            rows={3}
-            value={form.text}
-            onChange={(e) => setForm({ ...form, text: e.target.value })}
-            style={{ width: "100%", marginTop: 4, padding: 6 }}
-          />
-        </label>
+            <label>
+              Comment:
+              <textarea
+                rows={3}
+                value={form.text}
+                onChange={(e) => setForm({ ...form, text: e.target.value })}
+                style={{ width: "100%", marginTop: 4, padding: 6 }}
+              />
+            </label>
 
-        <button
-          onClick={submitComment}
-          style={{
-            marginTop: 10,
-            padding: "0.5rem 1rem",
-            backgroundColor: "#27ae60",
-            color: "white",
-            border: "none",
-            borderRadius: 4,
-            cursor: "pointer",
-            width: "100%",
-          }}
-        >
-          Submit Comment
-        </button>
-      </div>
+            <button
+              onClick={submitComment}
+              style={{
+                marginTop: 10,
+                padding: "0.5rem 1rem",
+                backgroundColor: "#27ae60",
+                color: "white",
+                border: "none",
+                borderRadius: 4,
+                cursor: "pointer",
+                width: "100%",
+              }}
+            >
+              Submit Comment
+            </button>
+          </div>
+        </>
+      )}
 
       <h3>Comments</h3>
       {loading ? (

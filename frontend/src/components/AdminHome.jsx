@@ -3,11 +3,15 @@ import HotelList from "./HotelList";
 import HotelDetails from "./HotelDetails";
 import HotelForm from "./HotelForm";
 import RoomForm from "./RoomForm";
-// import AdminNotifications from "./AdminNotifications";
+import Comments from "./Comments";
+import Toast from "./Toast";
 
 const API_BASE_URL = "https://localhost:7181/v1/";
 
 export default function AdminHome({ onLogout }) {
+  const [hotels, setHotels] = useState([]);
+  const [page, setPage] = useState(1);
+
   const [selectedHotelId, setSelectedHotelId] = useState(null);
   const [editingHotel, setEditingHotel] = useState(null);
   const [showHotelForm, setShowHotelForm] = useState(false);
@@ -16,6 +20,31 @@ export default function AdminHome({ onLogout }) {
   const [selectedRoom, setSelectedRoom] = useState(null);
   const [editingRoom, setEditingRoom] = useState(null);
   const [showRoomForm, setShowRoomForm] = useState(false);
+
+  const [toastMessage, setToastMessage] = useState("");
+  const [toastIsError, setToastIsError] = useState(false);
+
+  const showToast = (message, isError = false) => {
+    setToastMessage(message);
+    setToastIsError(isError);
+  };
+
+  const fetchHotels = async () => {
+    try {
+      const res = await fetch(`${API_BASE_URL}hotel?pageNumber=${page}&pageSize=10`, {
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+      });
+      const data = await res.json();
+      setHotels(data.items || []);
+    } catch (error) {
+      console.error("Failed to fetch hotels", error);
+      setHotels([]);
+    }
+  };
+
+  useEffect(() => {
+    fetchHotels();
+  }, [page]);
 
   useEffect(() => {
     setSelectedRoom(null);
@@ -34,7 +63,6 @@ export default function AdminHome({ onLogout }) {
       });
   }, [selectedHotelId]);
 
-  // Hotel handlers
   const handleAddHotel = () => {
     setEditingHotel(null);
     setShowHotelForm(true);
@@ -64,12 +92,12 @@ export default function AdminHome({ onLogout }) {
 
       if (!response.ok) throw new Error("Failed to delete hotel");
 
-      alert("Hotel deleted successfully");
+      showToast("Hotel deleted successfully");
       setSelectedHotelId(null);
       setRooms([]);
-      window.location.reload();
+      await fetchHotels();
     } catch (error) {
-      alert(error.message);
+      showToast(error.message, true);
     }
   };
 
@@ -91,12 +119,13 @@ export default function AdminHome({ onLogout }) {
 
       if (!response.ok) throw new Error("Failed to save hotel");
 
+      showToast("Hotel saved successfully");
       setShowHotelForm(false);
       setEditingHotel(null);
       setSelectedHotelId(null);
-      window.location.reload();
+      await fetchHotels();
     } catch (error) {
-      alert(error.message);
+      showToast(error.message, true);
     }
   };
 
@@ -105,10 +134,9 @@ export default function AdminHome({ onLogout }) {
     setEditingHotel(null);
   };
 
-  // Room handlers
   const handleAddRoom = () => {
     if (!selectedHotelId) {
-      alert("Select a hotel first to add a room.");
+      showToast("Select a hotel first to add a room.", true);
       return;
     }
     setEditingRoom(null);
@@ -144,9 +172,8 @@ export default function AdminHome({ onLogout }) {
 
       if (!response.ok) throw new Error("Failed to delete room");
 
-      alert("Room deleted successfully");
+      showToast("Room deleted successfully");
 
-      // Refresh rooms
       const updatedRes = await fetch(`${API_BASE_URL}hotel/${selectedHotelId}`, {
         headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
       });
@@ -154,14 +181,14 @@ export default function AdminHome({ onLogout }) {
       setRooms(updatedHotel.rooms || []);
       setSelectedRoom(null);
     } catch (error) {
-      alert(error.message);
+      showToast(error.message, true);
     }
   };
 
   const handleSaveRoom = async (roomData) => {
     try {
       if (!selectedHotelId) {
-        alert("Please select a hotel first.");
+        showToast("Please select a hotel first.", true);
         return;
       }
 
@@ -188,11 +215,12 @@ export default function AdminHome({ onLogout }) {
       const updatedHotel = await updatedRes.json();
       setRooms(updatedHotel.rooms || []);
 
+      showToast("Room saved successfully");
       setShowRoomForm(false);
       setEditingRoom(null);
       setSelectedRoom(null);
     } catch (error) {
-      alert(error.message);
+      showToast(error.message, true);
     }
   };
 
@@ -202,24 +230,9 @@ export default function AdminHome({ onLogout }) {
   };
 
   return (
-    <div
-      style={{
-        maxWidth: 900,
-        margin: "2rem auto",
-        fontFamily: "Arial, sans-serif",
-      }}
-    >
-      <header
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-        }}
-      >
+    <div style={{ maxWidth: 900, margin: "2rem auto", fontFamily: "Arial, sans-serif" }}>
+      <header style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
         <h1 style={{ color: "#2c3e50" }}>Admin Dashboard</h1>
-
-        {/* <AdminNotifications /> */}
-
         <button
           onClick={onLogout}
           style={{
@@ -294,13 +307,16 @@ export default function AdminHome({ onLogout }) {
         ) : (
           <>
             <HotelList
+              hotels={hotels}
+              page={page}
+              setPage={setPage}
+              selectedHotelId={selectedHotelId}
               onSelectHotel={(id) => {
                 setSelectedHotelId(id);
                 setSelectedRoom(null);
                 setShowRoomForm(false);
                 setShowHotelForm(false);
               }}
-              selectedHotelId={selectedHotelId}
             />
 
             {selectedHotelId && (
@@ -317,11 +333,24 @@ export default function AdminHome({ onLogout }) {
                   hotelId={selectedHotelId}
                   onRoomClick={handleRoomClick}
                 />
+
+                <Comments
+                  token={localStorage.getItem("token")}
+                  hotelId={selectedHotelId}
+                  showToast={showToast}
+                  disableForm={true}
+                />
               </section>
             )}
           </>
         )}
       </div>
+
+      <Toast
+        message={toastMessage}
+        isError={toastIsError}
+        onClose={() => setToastMessage("")}
+      />
     </div>
   );
 }

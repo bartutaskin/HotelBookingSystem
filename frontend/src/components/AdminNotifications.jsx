@@ -1,103 +1,51 @@
 import React, { useEffect, useState } from "react";
 import * as signalR from "@microsoft/signalr";
 
-export default function AdminNotifications() {
-  const [connection, setConnection] = useState(null);
+export default function AdminNotifications({ token }) {
   const [notifications, setNotifications] = useState([]);
-  const [showDropdown, setShowDropdown] = useState(false);
 
   useEffect(() => {
+    if (!token) return;
+
     const connection = new signalR.HubConnectionBuilder()
       .withUrl("https://localhost:7181/notificationHub", {
-        accessTokenFactory: () => localStorage.getItem("token"),
+        accessTokenFactory: () => token,
       })
       .withAutomaticReconnect()
       .build();
 
-    connection
-      .start()
-      .then(() => console.log("Connected to SignalR notification hub"))
-      .catch((err) => console.error("SignalR connection error: ", err));
+    connection.start()
+      .then(() => console.log("SignalR connected"))
+      .catch(err => console.error("SignalR connection error:", err));
 
     connection.on("ReceiveNotification", (notification) => {
-      setNotifications((prev) => [notification, ...prev]);
-      alert(`Notification: ${notification.Title} - ${notification.Message}`);
+      setNotifications((prev) => [...prev, notification]);
     });
-
-    setConnection(connection);
 
     return () => {
       connection.stop();
     };
-  }, []);
-
-  const handleClick = () => {
-    if (notifications.length === 0) {
-      alert("No new notifications");
-    } else {
-      setShowDropdown((prev) => !prev);
-    }
-  };
+  }, [token]);
 
   return (
-    <div style={{ position: "relative" }}>
-      <button
-        aria-label="Notifications"
-        onClick={handleClick}
-        style={{ position: "relative", cursor: "pointer" }}
-      >
-        🔔
-        {notifications.length > 0 && (
-          <span
-            style={{
-              position: "absolute",
-              top: -5,
-              right: -5,
-              backgroundColor: "red",
-              color: "white",
-              borderRadius: "50%",
-              padding: "2px 6px",
-              fontSize: "0.75rem",
-              fontWeight: "bold",
-            }}
-          >
-            {notifications.length}
-          </span>
-        )}
-      </button>
-
-      {showDropdown && notifications.length > 0 && (
+    <div style={{ position: "fixed", top: 20, right: 20, maxWidth: 300, zIndex: 2000 }}>
+      {notifications.map((notif, index) => (
         <div
+          key={index}
           style={{
-            position: "absolute",
-            top: "2.5rem",
-            right: 0,
-            backgroundColor: "#fff",
-            border: "1px solid #ccc",
-            boxShadow: "0 0 5px rgba(0,0,0,0.2)",
-            borderRadius: 4,
-            width: 300,
-            maxHeight: 400,
-            overflowY: "auto",
-            zIndex: 100,
+            backgroundColor: "#3498db",
+            color: "white",
+            padding: "10px",
+            marginBottom: "8px",
+            borderRadius: "6px",
+            boxShadow: "0 2px 6px rgba(0,0,0,0.2)",
+            fontSize: "0.9rem",
           }}
         >
-          {notifications.map((note, i) => (
-            <div
-              key={i}
-              style={{
-                padding: "0.5rem",
-                borderBottom: "1px solid #eee",
-                cursor: "default",
-              }}
-              title={note.Message}
-            >
-              <strong>{note.Title}</strong>
-              <p style={{ margin: 0, fontSize: "0.85rem" }}>{note.Message}</p>
-            </div>
-          ))}
+          <strong>{notif.title || "Notification"}</strong>
+          <p>{notif.message}</p>
         </div>
-      )}
+      ))}
     </div>
   );
 }
