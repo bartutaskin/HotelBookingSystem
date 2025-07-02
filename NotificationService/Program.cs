@@ -3,7 +3,6 @@ using HotelAdminService.Data;
 using MassTransit;
 using Microsoft.EntityFrameworkCore;
 using NotificationService.Consumers;
-using NotificationService.Hubs;
 using NotificationService.Services;
 
 namespace NotificationService
@@ -40,18 +39,6 @@ namespace NotificationService
                     });
                 });
             });
-            builder.Services.AddVersionedApiExplorer(options =>
-            {
-                options.GroupNameFormat = "'v'VVV";
-                options.SubstituteApiVersionInUrl = true;
-            });
-            builder.Services.AddApiVersioning(options =>
-            {
-                options.AssumeDefaultVersionWhenUnspecified = true;
-                options.DefaultApiVersion = new Microsoft.AspNetCore.Mvc.ApiVersion(1, 0);
-                options.ReportApiVersions = true;
-                options.ApiVersionReader = new Microsoft.AspNetCore.Mvc.Versioning.HeaderApiVersionReader("x-api-version");
-            });
             builder.Services.AddSignalR();
             var app = builder.Build();
 
@@ -66,7 +53,6 @@ namespace NotificationService
 
             app.UseAuthorization();
 
-            app.MapHub<NotificationHub>("/notificationHub");
 
             app.MapControllers();
 

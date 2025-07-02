@@ -12,15 +12,22 @@ namespace HotelAdminService.Services
         {
             _redisDb = redis.GetDatabase();
         }
+
         public async Task CacheHotelAsync(string hotelId, HotelWithRoomsDto hotel)
         {
             var json = JsonSerializer.Serialize(hotel);
             await _redisDb.StringSetAsync($"hotel:{hotelId}", json);
         }
+
         public async Task<HotelWithRoomsDto?> GetHotelAsync(string hotelId)
         {
             var json = await _redisDb.StringGetAsync($"hotel:{hotelId}");
             return json.IsNullOrEmpty ? null : JsonSerializer.Deserialize<HotelWithRoomsDto>(json!);
+        }
+
+        public async Task RemoveHotelAsync(string hotelId)
+        { 
+            await _redisDb.KeyDeleteAsync($"hotel:{hotelId}");
         }
     }
 }

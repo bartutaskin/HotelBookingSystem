@@ -12,6 +12,7 @@ export default function HotelList({
   goNextPage,
   pageSize,
   onBookClick,
+  onShowMapClick, // new prop for map button
 }) {
   const paginationBtnStyle = (disabled) => ({
     padding: "0.5rem 1rem",
@@ -59,6 +60,26 @@ export default function HotelList({
               {hotel.city}
               <br />
               {hotel.address}
+
+              {/* "Haritada Göster" button */}
+              <button
+                onClick={(e) => {
+                  e.stopPropagation(); // prevent list item click
+                  onShowMapClick(hotel);
+                }}
+                style={{
+                  marginTop: 6,
+                  marginRight: 10,
+                  padding: "0.3rem 0.7rem",
+                  backgroundColor: "#2980b9",
+                  color: "white",
+                  border: "none",
+                  borderRadius: 4,
+                  cursor: "pointer",
+                }}
+              >
+                Haritada Göster
+              </button>
 
               {isFiltered &&
                 hotel.availableRooms &&

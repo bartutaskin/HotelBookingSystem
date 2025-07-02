@@ -3,7 +3,10 @@ import HotelSearch from "./HotelSearch";
 import ClientHotelList from "./ClientHotelList";
 import BookingForm from "./BookingForm";
 import Toast from "./Toast";
-import Comments from "./Comments"; // Import the Comments component
+import Comments from "./Comments";
+
+import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
+import "leaflet/dist/leaflet.css";
 
 const API_BASE_URL = "https://localhost:7181/v1/";
 
@@ -22,6 +25,9 @@ export default function ClientHome({ onLogout, token, userId }) {
   });
 
   const [toast, setToast] = useState({ show: false, message: "", isError: false });
+
+  // New state to control map modal with hotel location
+  const [mapHotelLocation, setMapHotelLocation] = useState(null);
 
   const pageSize = 10;
 
@@ -220,6 +226,7 @@ export default function ClientHome({ onLogout, token, userId }) {
                 room,
               })
             }
+            onShowMapClick={(hotel) => setMapHotelLocation(hotel)}
           />
         )}
 
@@ -238,10 +245,45 @@ export default function ClientHome({ onLogout, token, userId }) {
             token={token}
             hotelId={selectedHotel.hotelId ?? selectedHotel.id}
             userId={parseInt(userId)}
-            showToast={showToast} // Pass showToast callback to Comments
+            showToast={showToast}
           />
         )}
       </div>
+
+      {/* Map modal */}
+      {mapHotelLocation && (
+        <div
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            width: "100vw",
+            height: "100vh",
+            backgroundColor: "rgba(0,0,0,0.5)",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            zIndex: 1000,
+          }}
+          onClick={() => setMapHotelLocation(null)}
+        >
+          <div
+            style={{ width: 600, height: 400, backgroundColor: "white", borderRadius: 8 }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <MapContainer
+              center={[mapHotelLocation.latitude, mapHotelLocation.longitude]}
+              zoom={13}
+              style={{ height: "100%", width: "100%" }}
+            >
+              <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+              <Marker position={[mapHotelLocation.latitude, mapHotelLocation.longitude]}>
+                <Popup>{mapHotelLocation.name}</Popup>
+              </Marker>
+            </MapContainer>
+          </div>
+        </div>
+      )}
 
       {toast.show && (
         <Toast

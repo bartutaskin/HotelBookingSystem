@@ -250,5 +250,46 @@ namespace HotelAdminService.Controllers
 
             return Ok(bookedGuests);
         }
+
+        [HttpDelete("{hotelId}")]
+        public async Task<IActionResult> DeleteHotel(int hotelId)
+        {
+            var hotel = await _context.Hotels
+                .Include(h => h.Rooms)
+                .FirstOrDefaultAsync(h => h.Id == hotelId);
+
+            if (hotel == null)
+                return NotFound("Hotel not found");
+
+            _context.Rooms.RemoveRange(hotel.Rooms);
+            _context.Hotels.Remove(hotel);           
+            await _context.SaveChangesAsync();
+
+            await _hotelCacheService.RemoveHotelAsync(hotelId.ToString()); // Clear cache if needed
+
+            return NoContent();
+        }
+
+        [HttpDelete("room/{roomId}")]
+        public async Task<IActionResult> DeleteRoom(int roomId)
+        {
+            var room = await _context.Rooms.FindAsync(roomId);
+            if (room == null)
+                return NotFound("Room not found");
+
+            var hotelId = room.HotelId;
+
+            _context.Rooms.Remove(room);
+            await _context.SaveChangesAsync();
+
+            var updatedHotel = await _context.Hotels
+                .Include(h => h.Rooms)
+                .FirstOrDefaultAsync(h => h.Id == hotelId);
+
+            var hotelWithRoomsDto = _mapper.Map<HotelWithRoomsDto>(updatedHotel);
+            await _hotelCacheService.CacheHotelAsync(hotelId.ToString(), hotelWithRoomsDto);
+
+            return NoContent();
+        }
     }
 }

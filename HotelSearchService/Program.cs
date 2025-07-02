@@ -21,8 +21,9 @@ namespace HotelSearchService
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
 
-            builder.Services.AddSingleton<IHotelCacheService, HotelCacheService>();
             builder.Services.AddScoped<IHotelSearchService, HotelSearchService.Services.HotelSearchService>();
+            builder.Services.AddSingleton<IHotelCacheService, HotelCacheService>();
+
 
             builder.Services.AddSwaggerGen(c =>
             {
@@ -43,7 +44,7 @@ namespace HotelSearchService
             });
             builder.Services.AddSingleton<IConnectionMultiplexer>(
                 ConnectionMultiplexer.Connect("localhost:6379"));
-            
+
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.
