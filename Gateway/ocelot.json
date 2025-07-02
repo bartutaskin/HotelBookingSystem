@@ -71,6 +71,18 @@
             ],
             "UpstreamPathTemplate": "/notificationHub",
             "UpstreamHttpMethod": [ "GET" ]
+        },
+        {
+            "DownstreamPathTemplate": "/ai-agent",
+            "DownstreamScheme": "http",
+            "DownstreamHostAndPorts": [
+                {
+                    "Host": "localhost",
+                    "Port": 8000
+                }
+            ],
+            "UpstreamPathTemplate": "/ai-agent",
+            "UpstreamHttpMethod": [ "POST" ]
         }
     ],
     "GlobalConfiguration": {
