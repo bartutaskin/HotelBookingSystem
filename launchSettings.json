@@ -1,0 +1,17 @@
+{
+  "profiles": {
+    "Docker Compose": {
+      "commandName": "DockerCompose",
+      "commandVersion": "1.0",
+      "serviceActions": {
+        "authservice": "StartDebugging",
+        "bookhotelservice": "StartDebugging",
+        "gateway": "StartDebugging",
+        "hoteladminservice": "StartDebugging",
+        "hotelcommentsservice": "StartDebugging",
+        "hotelsearchservice": "StartDebugging",
+        "notificationservice": "StartDebugging"
+      }
+    }
+  }
+}

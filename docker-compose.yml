@@ -1,0 +1,180 @@
+services:
+  authservice:
+    build:
+      context: .
+      dockerfile: AuthService/Dockerfile
+    environment:
+      - ConnectionStrings__DefaultConnection=Host=auth-db;Port=5432;Database=HotelAuthDb;Username=postgres;Password=123456789
+    ports:
+      - "5001:8080"
+      - "5443:8081"
+    depends_on:
+      - auth-db
+    networks:
+      - backend
+
+  bookhotelservice:
+    build:
+      context: .
+      dockerfile: BookHotelService/Dockerfile
+    environment:
+      - ConnectionStrings__HotelDb=Host=hotel-db;Port=5432;Database=HotelAdminDb;Username=postgres;Password=123456789
+      - AuthService__BaseUrl=http://authservice:8080
+      - RabbitMq__Host=rabbitmq
+      - RabbitMq__Username=guest
+      - RabbitMq__Password=guest
+    ports:
+      - "5002:8080"
+      - "5444:8081"
+    depends_on:
+      - hotel-db
+      - rabbitmq
+    networks:
+      - backend
+
+  notificationservice:
+    build:
+      context: .
+      dockerfile: NotificationService/Dockerfile
+    environment:
+      - RabbitMq__Host=rabbitmq
+      - RabbitMq__Username=guest
+      - RabbitMq__Password=guest
+    ports:
+      - "5003:8080"
+      - "5445:8081"
+    depends_on:
+      - rabbitmq
+    networks:
+      - backend
+
+  gateway:
+    build:
+      context: .
+      dockerfile: Gateway/Dockerfile
+    ports:
+      - "5000:8080"
+      - "5440:8081"
+    networks:
+      - backend
+    depends_on:
+      - authservice
+      - bookhotelservice
+      - notificationservice
+      - hoteladminservice
+      - hotelsearchservice
+
+  hoteladminservice:
+    build:
+      context: .
+      dockerfile: HotelAdminService/Dockerfile
+    environment:
+      - ConnectionStrings__HotelDb=Host=hotel-db;Port=5432;Database=HotelAdminDb;Username=postgres;Password=123456789
+      - Redis__Host=redis
+    ports:
+      - "5004:8080"
+      - "5446:8081"
+    depends_on:
+      - hotel-db
+      - redis
+    networks:
+      - backend
+
+  hotelcommentsservice:
+    build:
+      context: .
+      dockerfile: HotelCommentsService/Dockerfile
+    environment:
+      - Mongo__ConnectionString=mongodb://mongo:27017
+    ports:
+      - "5005:8080"
+      - "5447:8081"
+    depends_on:
+      - mongo
+    networks:
+      - backend
+
+  hotelsearchservice:
+    build:
+      context: .
+      dockerfile: HotelSearchService/Dockerfile
+    environment:
+      - Redis__Host=redis
+    ports:
+      - "5006:8080"
+      - "5448:8081"
+    depends_on:
+      - redis
+    networks:
+      - backend
+
+  postgres:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 123456789
+      POSTGRES_DB: HotelBookingDb
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - backend
+
+  auth-db:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 123456789
+      POSTGRES_DB: HotelAuthDb
+    volumes:
+      - auth_pgdata:/var/lib/postgresql/data
+    ports:
+      - "5433:5432"
+    networks:
+      - backend
+
+  hotel-db:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 123456789
+      POSTGRES_DB: HotelAdminDb
+    volumes:
+      - admin_pgdata:/var/lib/postgresql/data
+    ports:
+      - "5434:5432"
+    networks:
+      - backend
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    environment:
+      - RABBITMQ_DEFAULT_USER=guest
+      - RABBITMQ_DEFAULT_PASS=guest
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    networks:
+      - backend
+
+  redis:
+    image: redis:latest
+    ports:
+      - "6379:6379"
+    networks:
+      - backend
+
+  mongo:
+    image: mongodb/mongodb-community-server:latest
+    ports:
+      - "27017:27017"
+    networks:
+      - backend
+volumes:
+  auth_pgdata:
+  admin_pgdata:
+  pgdata:
+
+networks:
+  backend:
