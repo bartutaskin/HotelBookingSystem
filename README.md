@@ -71,8 +71,8 @@ Watch the project demo on YouTube:
 ### 🤖 **AI Agent**
 - Natural language interface integrated into the frontend
 - Handles:
-  - Hotel **search** (e.g., “Find hotels in Rome for 2 people”)
-  - **Booking** (e.g., “Book a room at SeaView Hotel from Aug 1 to Aug 5”)
+  - Hotel **search** (e.g., “Search hotels in [City Name] from 2025-07-08 to 2025-07-09 for 2 guests”)
+  - **Booking** (e.g., “I want to book room 37 from hotel 32, for 2 guests between 07 July and 08 July in 2025”)
 - Uses OpenAI API and intent routing logic to determine action
 
 ---
