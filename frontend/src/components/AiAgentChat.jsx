@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 
-export default function AiAgentChat({ token, userId, showToast }) {
+export default function AiAgentChat({ token, userId, showToast, onBookRoom }) {
   const [userInput, setUserInput] = useState("");
   const [aiResponse, setAiResponse] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -36,7 +36,6 @@ export default function AiAgentChat({ token, userId, showToast }) {
 
       const data = await res.json();
 
-      // If booking success flag returned (even if LLM parse failed before)
       if (data.bookingSuccess) {
         showToast("Booking successful!");
         setAiResponse(null);
@@ -44,15 +43,12 @@ export default function AiAgentChat({ token, userId, showToast }) {
         return;
       }
 
-      // If error is LLM JSON parse error but bookingSuccess not true,
-      // silently hide AI response UI and no error toast (optional: you can add your own toast here)
       if (data.error === "Failed to parse LLM JSON response.") {
         setAiResponse(null);
         setUserInput("");
         return;
       }
 
-      // Normal booking success (intent=book) or other intents
       if (data.intent === "book" && !data.error) {
         showToast("Booking successful!");
         setAiResponse(null);
@@ -60,7 +56,6 @@ export default function AiAgentChat({ token, userId, showToast }) {
         return;
       }
 
-      // Otherwise show AI response
       setAiResponse({
         intent: data.intent || null,
         status: data.status || null,
@@ -78,30 +73,177 @@ export default function AiAgentChat({ token, userId, showToast }) {
     }
   };
 
+  // Styles
+  const styles = {
+    container: {
+      marginTop: 30,
+      fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
+      maxWidth: 700,
+      marginLeft: "auto",
+      marginRight: "auto",
+      padding: "0 15px",
+    },
+    heading: {
+      marginBottom: 20,
+      color: "#2c3e50",
+      textAlign: "center",
+      fontWeight: "700",
+      fontSize: "1.8rem",
+    },
+    textarea: {
+      width: "100%",
+      padding: 12,
+      borderRadius: 6,
+      border: "1.5px solid #ccc",
+      fontSize: 16,
+      resize: "vertical",
+      boxShadow: "0 2px 5px rgb(0 0 0 / 0.1)",
+      fontFamily: "inherit",
+      transition: "border-color 0.3s ease",
+    },
+    textareaFocus: {
+      borderColor: "#2ecc71",
+      outline: "none",
+      boxShadow: "0 0 8px rgba(46, 204, 113, 0.6)",
+    },
+    button: {
+      marginTop: 15,
+      padding: "0.75rem 1.2rem",
+      backgroundColor: "#27ae60",
+      color: "white",
+      border: "none",
+      borderRadius: 6,
+      cursor: "pointer",
+      width: "100%",
+      fontWeight: "600",
+      fontSize: 16,
+      boxShadow: "0 4px 10px rgb(39 174 96 / 0.6)",
+      transition: "background-color 0.3s ease",
+    },
+    buttonDisabled: {
+      backgroundColor: "#95a5a6",
+      cursor: "not-allowed",
+      boxShadow: "none",
+    },
+    responseBox: {
+      marginTop: 25,
+      padding: 15,
+      borderRadius: 8,
+      maxHeight: 320,
+      overflowY: "auto",
+      fontFamily: "'Courier New', Courier, monospace",
+      whiteSpace: "pre-wrap",
+      boxShadow: "0 3px 12px rgb(0 0 0 / 0.1)",
+    },
+    responseSuccess: {
+      backgroundColor: "#d4edda",
+      color: "#155724",
+      border: "1.5px solid #c3e6cb",
+    },
+    responseError: {
+      backgroundColor: "#f8d7da",
+      color: "#721c24",
+      border: "1.5px solid #f5c6cb",
+    },
+    responseNeutral: {
+      backgroundColor: "#ecf0f1",
+      color: "#2c3e50",
+      border: "1.5px solid #bdc3c7",
+    },
+    hotelCard: {
+      backgroundColor: "white",
+      padding: 15,
+      borderRadius: 8,
+      marginBottom: 20,
+      boxShadow: "0 2px 8px rgb(0 0 0 / 0.08)",
+      border: "1px solid #e1e4e8",
+    },
+    hotelTitle: {
+      fontWeight: "700",
+      fontSize: "1.1rem",
+      color: "#34495e",
+      marginBottom: 5,
+    },
+    hotelCity: {
+      fontWeight: "500",
+      color: "#7f8c8d",
+      marginBottom: 8,
+    },
+    hotelAddress: {
+      marginBottom: 12,
+      color: "#566573",
+    },
+    roomsList: {
+      listStyle: "none",
+      paddingLeft: 0,
+      marginTop: 0,
+    },
+    roomItem: {
+      display: "flex",
+      justifyContent: "space-between",
+      alignItems: "center",
+      padding: "6px 10px",
+      borderBottom: "1px solid #ecf0f1",
+      fontSize: 15,
+      color: "#2c3e50",
+    },
+    bookButton: {
+      backgroundColor: "#2980b9",
+      color: "white",
+      border: "none",
+      borderRadius: 5,
+      padding: "6px 12px",
+      cursor: "pointer",
+      fontWeight: "600",
+      fontSize: 14,
+      transition: "background-color 0.3s ease",
+    },
+    bookButtonHover: {
+      backgroundColor: "#1c5980",
+    },
+    sectionTitle: {
+      fontWeight: "600",
+      fontSize: "1.2rem",
+      color: "#34495e",
+      marginBottom: 15,
+      borderBottom: "2px solid #2ecc71",
+      paddingBottom: 4,
+    },
+    preDetails: {
+      backgroundColor: "#f7f9fa",
+      padding: 10,
+      borderRadius: 6,
+      fontSize: 13,
+      marginTop: 12,
+      border: "1px solid #ddd",
+      whiteSpace: "pre-wrap",
+      maxHeight: 150,
+      overflowY: "auto",
+    },
+  };
+
   return (
-    <div style={{ marginTop: 30 }}>
-      <h3>Chat with AI Agent</h3>
+    <div style={styles.container}>
+      <h3 style={styles.heading}>Chat with AI Agent</h3>
       <textarea
         rows={4}
         value={userInput}
         onChange={(e) => setUserInput(e.target.value)}
         placeholder="Ask about hotels, booking, comments..."
-        style={{ width: "100%", padding: 8, borderRadius: 4, border: "1px solid #ccc" }}
+        style={styles.textarea}
         disabled={loading}
+        onFocus={(e) => (e.target.style.borderColor = "#2ecc71")}
+        onBlur={(e) => (e.target.style.borderColor = "#ccc")}
       />
       <button
         onClick={sendAiRequest}
         disabled={loading}
         style={{
-          marginTop: 10,
-          padding: "0.5rem 1rem",
-          backgroundColor: loading ? "#95a5a6" : "#2ecc71",
-          color: "white",
-          border: "none",
-          borderRadius: 4,
-          cursor: loading ? "not-allowed" : "pointer",
-          width: "100%",
+          ...styles.button,
+          ...(loading ? styles.buttonDisabled : {}),
         }}
+        onMouseOver={(e) => !loading && (e.currentTarget.style.backgroundColor = "#27ae60")}
+        onMouseOut={(e) => !loading && (e.currentTarget.style.backgroundColor = "#2ecc71")}
       >
         {loading ? "Sending..." : "Send"}
       </button>
@@ -109,53 +251,47 @@ export default function AiAgentChat({ token, userId, showToast }) {
       {aiResponse && (
         <div
           style={{
-            marginTop: 15,
-            padding: 10,
-            backgroundColor:
-              aiResponse.status === "success"
-                ? "#d4edda"
-                : aiResponse.status === "error"
-                ? "#f8d7da"
-                : "#ecf0f1",
-            color:
-              aiResponse.status === "success"
-                ? "#155724"
-                : aiResponse.status === "error"
-                ? "#721c24"
-                : "#2c3e50",
-            borderRadius: 4,
-            maxHeight: 300,
-            overflowY: "auto",
-            whiteSpace: "pre-wrap",
-            fontFamily: "monospace",
+            ...styles.responseBox,
+            ...(aiResponse.status === "success"
+              ? styles.responseSuccess
+              : aiResponse.status === "error"
+              ? styles.responseError
+              : styles.responseNeutral),
           }}
         >
           {aiResponse.status && aiResponse.message ? (
             <>
-              <strong>{aiResponse.status === "success" ? "Success:" : "Error:"}</strong>{" "}
-              {aiResponse.message}
+              <strong>{aiResponse.status === "success" ? "Success:" : "Error:"}</strong> {aiResponse.message}
               {aiResponse.details && (
-                <>
-                  <hr />
-                  <pre>{JSON.stringify(aiResponse.details, null, 2)}</pre>
-                </>
+                <pre style={styles.preDetails}>{JSON.stringify(aiResponse.details, null, 2)}</pre>
               )}
             </>
           ) : aiResponse.response && aiResponse.intent === "search hotel" ? (
             <>
-              <h4>Search Results:</h4>
+              <h4 style={styles.sectionTitle}>Search Results:</h4>
               {aiResponse.response.items.map((hotel) => (
-                <div key={hotel.hotelId} style={{ marginBottom: 15 }}>
-                  <strong>
-                    {hotel.hotelName} (Hotel ID: {hotel.hotelId}) — {hotel.city}
-                  </strong>
-                  <div>Address: {hotel.address}</div>
+                <div key={hotel.hotelId} style={styles.hotelCard}>
+                  <div style={styles.hotelTitle}>
+                    {hotel.hotelName} (Hotel ID: {hotel.hotelId})
+                  </div>
+                  <div style={styles.hotelCity}>{hotel.city}</div>
+                  <div style={styles.hotelAddress}>Address: {hotel.address}</div>
                   <div>Available Rooms:</div>
-                  <ul>
+                  <ul style={styles.roomsList}>
                     {hotel.availableRooms.map((room) => (
-                      <li key={room.roomId}>
-                        {room.roomType} (Room ID: {room.roomId}) — Capacity: {room.capacity}, Price: $
-                        {room.price.toFixed(2)}
+                      <li key={room.roomId} style={styles.roomItem}>
+                        <div>
+                          {room.roomType} (Room ID: {room.roomId}) — Capacity: {room.capacity}, Price: $
+                          {room.price.toFixed(2)}
+                        </div>
+                        <button
+                          onClick={() => onBookRoom && onBookRoom(hotel.hotelId, room.roomId)}
+                          style={styles.bookButton}
+                          onMouseOver={(e) => (e.currentTarget.style.backgroundColor = "#1c5980")}
+                          onMouseOut={(e) => (e.currentTarget.style.backgroundColor = "#2980b9")}
+                        >
+                          Book Now
+                        </button>
                       </li>
                     ))}
                   </ul>
@@ -163,7 +299,7 @@ export default function AiAgentChat({ token, userId, showToast }) {
               ))}
             </>
           ) : (
-            <pre>{JSON.stringify(aiResponse, null, 2)}</pre>
+            <pre style={styles.preDetails}>{JSON.stringify(aiResponse, null, 2)}</pre>
           )}
         </div>
       )}
